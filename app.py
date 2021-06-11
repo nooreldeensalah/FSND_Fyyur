@@ -41,16 +41,18 @@ class Venue(db.Model):
     __tablename__ = "Venue"
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(70))
-    city = db.Column(db.String(120))
-    state = db.Column(db.String(120))
-    address = db.Column(db.String(120))
+    name = db.Column(db.String(70), nullable=False)
+    city = db.Column(db.String(120), nullable=False)
+    state = db.Column(db.String(120), nullable=False)
+    address = db.Column(db.String(120), nullable=False)
     phone = db.Column(db.String(120))
-    genres = db.Column(db.String(120))
+    genres = db.Column(db.String(120), nullable=False)
     facebook_link = db.Column(db.String(120))
     image_link = db.Column(db.String(500))
     website_link = db.Column(db.String(120))
-    seeking_talent = db.Column(db.Boolean)
+    seeking_talent = db.Column(
+        db.String(1), default=False
+    )  # The Received request body has this as "str" not boolean.
     seeking_description = db.Column(db.String(120))
     past_shows = db.Column(db.String(120))
     past_shows_count = db.Column(db.Integer)
@@ -63,15 +65,17 @@ class Artist(db.Model):
     __tablename__ = "Artist"
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(70))
-    city = db.Column(db.String(120))
-    state = db.Column(db.String(120))
+    name = db.Column(db.String(70), nullable=False)
+    city = db.Column(db.String(120), nullable=False)
+    state = db.Column(db.String(120), nullable=False)
     phone = db.Column(db.String(120))
-    genres = db.Column(db.String(120))
+    genres = db.Column(db.String(120), nullable=False)
     facebook_link = db.Column(db.String(120))
     image_link = db.Column(db.String(500))
     website_link = db.Column(db.String(120))
-    seeking_venue = db.Column(db.Boolean)
+    seeking_venue = db.Column(
+        db.String(1), default=False
+    )  # The Received request body has this as "str" not boolean.
     seeking_description = db.Column(db.String(120))
     past_shows = db.Column(db.String(120))
     past_shows_count = db.Column(db.Integer)
@@ -275,9 +279,23 @@ def create_venue_form():
 def create_venue_submission():
     # TODO: insert form data as a new Venue record in the db, instead
     # TODO: modify data to be the data object returned from db insertion
-
+    error = False
+    data = Venue()
+    try:
+        request_body = request.form
+        data = Venue(**request_body)
+        db.session.add(data)
+        db.session.commit()
+    except:
+        db.session.rollback()
+        error = True
+    finally:
+        db.session.close()
+    if error:
+        flash("An error occurred. Venue " + data.name + " could not be listed.")
+    else:
+        flash("Venue " + request.form["name"] + " was successfully listed!")
     # on successful db insert, flash success
-    flash("Venue " + request.form["name"] + " was successfully listed!")
     # TODO: on unsuccessful db insert, flash an error instead.
     # e.g., flash('An error occurred. Venue ' + data.name + ' could not be listed.')
     # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
