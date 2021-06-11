@@ -50,9 +50,7 @@ class Venue(db.Model):
     facebook_link = db.Column(db.String(120))
     image_link = db.Column(db.String(500))
     website_link = db.Column(db.String(120))
-    seeking_talent = db.Column(
-        db.String(1), default=False
-    )  # The Received request body has this as "str" not boolean.
+    seeking_talent = db.Column(db.String(1), server_default="n", default="n")
     seeking_description = db.Column(db.String(120))
     past_shows = db.Column(db.String(120))
     past_shows_count = db.Column(db.Integer)
@@ -73,9 +71,7 @@ class Artist(db.Model):
     facebook_link = db.Column(db.String(120))
     image_link = db.Column(db.String(500))
     website_link = db.Column(db.String(120))
-    seeking_venue = db.Column(
-        db.String(1), default=False
-    )  # The Received request body has this as "str" not boolean.
+    seeking_venue = db.Column(db.String(1), server_default="n", default="n")
     seeking_description = db.Column(db.String(120))
     past_shows = db.Column(db.String(120))
     past_shows_count = db.Column(db.Integer)
