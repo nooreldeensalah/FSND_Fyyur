@@ -31,7 +31,6 @@ migrate = Migrate(app, db)
 
 Show = db.Table(
     "Show",
-    db.MetaData,
     db.Column("venue_id", db.Integer, db.ForeignKey("Venue.id"), primary_key=True),
     db.Column("artist_id", db.Integer, db.ForeignKey("Artist.id"), primary_key=True),
     db.Column("start_time", db.DateTime),
@@ -50,7 +49,7 @@ class Venue(db.Model):
     genres = db.Column(db.String(120))
     facebook_link = db.Column(db.String(120))
     image_link = db.Column(db.String(500))
-    website = db.Column(db.String(120))
+    website_link = db.Column(db.String(120))
     seeking_talent = db.Column(db.Boolean)
     seeking_description = db.Column(db.String(120))
     past_shows = db.Column(db.String(120))
@@ -71,7 +70,7 @@ class Artist(db.Model):
     genres = db.Column(db.String(120))
     facebook_link = db.Column(db.String(120))
     image_link = db.Column(db.String(500))
-    website = db.Column(db.String(120))
+    website_link = db.Column(db.String(120))
     seeking_venue = db.Column(db.Boolean)
     seeking_description = db.Column(db.String(120))
     past_shows = db.Column(db.String(120))
