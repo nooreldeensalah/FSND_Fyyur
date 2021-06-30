@@ -14,6 +14,7 @@ from flask_wtf import Form
 from forms import *
 from flask_migrate import Migrate
 
+
 # ----------------------------------------------------------------------------#
 # App Config.
 # ----------------------------------------------------------------------------#
@@ -29,13 +30,6 @@ migrate = Migrate(app, db)
 # Models.
 # ----------------------------------------------------------------------------#
 
-Show = db.Table(
-    "Show",
-    db.Column("venue_id", db.Integer, db.ForeignKey("Venue.id"), primary_key=True),
-    db.Column("artist_id", db.Integer, db.ForeignKey("Artist.id"), primary_key=True),
-    db.Column("start_time", db.DateTime),
-)
-
 
 class Venue(db.Model):
     __tablename__ = "Venue"
@@ -50,13 +44,9 @@ class Venue(db.Model):
     facebook_link = db.Column(db.String(120))
     image_link = db.Column(db.String(500))
     website_link = db.Column(db.String(120))
-    seeking_talent = db.Column(db.String(1), server_default="n", default="n")
-    seeking_description = db.Column(db.String(120))
-    past_shows = db.Column(db.String(120))
-    past_shows_count = db.Column(db.Integer)
-    upcoming_shows = db.Column(db.String(120))
-    upcoming_shows_count = db.Column(db.Integer)
-    artists = db.relationship("Artist", secondary=Show, backref="venues")
+    seeking_talent = db.Column(db.Boolean, server_default="f", default=False)
+    seeking_description = db.Column(db.String(500))
+    shows = db.relationship("Show", backref="venue")
 
 
 class Artist(db.Model):
@@ -71,12 +61,17 @@ class Artist(db.Model):
     facebook_link = db.Column(db.String(120))
     image_link = db.Column(db.String(500))
     website_link = db.Column(db.String(120))
-    seeking_venue = db.Column(db.String(1), server_default="n", default="n")
-    seeking_description = db.Column(db.String(120))
-    past_shows = db.Column(db.String(120))
-    past_shows_count = db.Column(db.Integer)
-    upcoming_shows = db.Column(db.String(120))
-    upcoming_shows_count = db.Column(db.Integer)
+    seeking_venue = db.Column(db.Boolean, server_default="f", default=False)
+    seeking_description = db.Column(db.String(500))
+    shows = db.relationship("Show", backref="artist")
+
+
+class Show(db.Model):
+    __tablename__ = "Show"
+    id = db.Column(db.Integer, primary_key=True)
+    venue_id = db.Column(db.Integer, db.ForeignKey("Venue.id"), nullable=False)
+    artist_id = db.Column(db.Integer, db.ForeignKey("Artist.id"), nullable=False)
+    start_time = db.Column(db.DateTime, nullable=False)
 
 
 # ----------------------------------------------------------------------------#
