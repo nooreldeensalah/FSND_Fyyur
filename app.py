@@ -269,10 +269,13 @@ def create_venue_form():
 @app.route("/venues/create", methods=["POST"])
 def create_venue_submission():
     error = False
-    data = Venue()
     try:
-        request_body = request.form
-        data = Venue(**request_body)
+        request_body = VenueForm(request.form).data
+        # I have to remove csrf_token to use tuple-unpacking form, I'll preserve the original request body
+        data_dict = {
+            key: request_body[key] for key in request_body if key != "csrf_token"
+        }
+        data = Venue(**data_dict)
         db.session.add(data)
         db.session.commit()
     except:
@@ -281,7 +284,9 @@ def create_venue_submission():
     finally:
         db.session.close()
     if error:
-        flash("An error occurred. Venue " + data.name + " could not be listed.")
+        flash(
+            "An error occurred. Venue " + request.form["name"] + " could not be listed."
+        )
     else:
         flash("Venue " + request.form["name"] + " was successfully listed!")
     return render_template("pages/home.html")
@@ -499,10 +504,13 @@ def create_artist_form():
 @app.route("/artists/create", methods=["POST"])
 def create_artist_submission():
     error = False
-    data = Artist()
     try:
-        request_body = request.form
-        data = Artist(**request_body)
+        request_body = ArtistForm(request.form).data
+        # Removing csrf_token while preserving the original request body to be able to use tuple-unpacking
+        data_dict = {
+            key: request_body[key] for key in request_body if key != "csrf_token"
+        }
+        data = Artist(**data_dict)
         db.session.add(data)
         db.session.commit()
     except:
@@ -511,7 +519,11 @@ def create_artist_submission():
     finally:
         db.session.close()
     if error:
-        flash("An error occurred. Artist " + data.name + " could not be listed.")
+        flash(
+            "An error occurred. Artist "
+            + request.form["name"]
+            + " could not be listed."
+        )
     else:
         flash("Artist " + request.form["name"] + " was successfully listed!")
     return render_template("pages/home.html")
@@ -582,9 +594,13 @@ def create_shows():
 def create_show_submission():
     error = False
     try:
-        request_body = request.form
-        ins_object = Show.insert().values(**request_body)
-        db.session.execute(ins_object)
+        request_body = ShowForm(request.form).data
+        # Removing csrf_token while preserving the original request body to be able to use tuple-unpacking
+        data_dict = {
+            key: request_body[key] for key in request_body if key != "csrf_token"
+        }
+        data = Show(**data_dict)
+        db.session.add(data)
         db.session.commit()
     except:
         db.session.rollback()
