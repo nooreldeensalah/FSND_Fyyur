@@ -1,7 +1,7 @@
 # ----------------------------------------------------------------------------#
 # Imports
 # ----------------------------------------------------------------------------#
-
+from datetime import datetime
 import json
 import dateutil.parser
 import babel
@@ -109,35 +109,23 @@ def index():
 def venues():
     # TODO: replace with real venues data.
     #       num_shows should be aggregated based on number of upcoming shows per venue.
-    data = [
-        {
-            "city": "San Francisco",
-            "state": "CA",
-            "venues": [
+    data = []
+    city_state_pair = []
+    for venue in Venue.query.distinct(Venue.city, Venue.state):
+        city_state_pair.append((venue.city, venue.state))
+    for city, state in city_state_pair:
+        data_dict = {"city": city, "state": state, "venues": []}
+        for venue in Venue.query.filter_by(city=city, state=state).all():
+            data_dict["venues"].append(
                 {
-                    "id": 1,
-                    "name": "The Musical Hop",
-                    "num_upcoming_shows": 0,
-                },
-                {
-                    "id": 3,
-                    "name": "Park Square Live Music & Coffee",
-                    "num_upcoming_shows": 1,
-                },
-            ],
-        },
-        {
-            "city": "New York",
-            "state": "NY",
-            "venues": [
-                {
-                    "id": 2,
-                    "name": "The Dueling Pianos Bar",
-                    "num_upcoming_shows": 0,
+                    "id": venue.id,
+                    "name": venue.name,
+                    "num_upcoming_shows": Venue.query.join(Show)
+                    .filter(Venue.id == venue.id, Show.start_time > datetime.now())
+                    .count(),
                 }
-            ],
-        },
-    ]
+            )
+        data.append(data_dict)
     return render_template("pages/venues.html", areas=data)
 
 
