@@ -372,9 +372,28 @@ def edit_artist(artist_id):
 
 @app.route("/artists/<int:artist_id>/edit", methods=["POST"])
 def edit_artist_submission(artist_id):
-    # TODO: take values from the form submitted, and update existing
-    # artist record with ID <artist_id> using the new attributes
-
+    error = False
+    try:
+        form_body = ArtistForm(request.form).data
+        artist = Artist.query.get(artist_id)
+        artist.name = form_body["name"]
+        artist.genres = form_body["genres"]
+        artist.city = form_body["city"]
+        artist.state = form_body["state"]
+        artist.phone = form_body["phone"]
+        artist.facebook_link = form_body["facebook_link"]
+        artist.website_link = form_body["website_link"]
+        artist.image_link = form_body["image_link"]
+        artist.seeking_description = form_body["seeking_description"]
+        artist.seeking_venue = form_body["seeking_venue"]
+        db.session.commit()
+    except:
+        db.session.rollback()
+        error = True
+    finally:
+        db.session.close()
+    if error:
+        abort(500)
     return redirect(url_for("show_artist", artist_id=artist_id))
 
 
@@ -390,8 +409,29 @@ def edit_venue(venue_id):
 
 @app.route("/venues/<int:venue_id>/edit", methods=["POST"])
 def edit_venue_submission(venue_id):
-    # TODO: take values from the form submitted, and update existing
-    # venue record with ID <venue_id> using the new attributes
+    error = False
+    try:
+        form_body = VenueForm(request.form).data
+        venue = Venue.query.get(venue_id)
+        venue.name = form_body["name"]
+        venue.genres = form_body["genres"]
+        venue.city = form_body["city"]
+        venue.state = form_body["state"]
+        venue.address = form_body["address"]
+        venue.phone = form_body["phone"]
+        venue.facebook_link = form_body["facebook_link"]
+        venue.website_link = form_body["website_link"]
+        venue.image_link = form_body["image_link"]
+        venue.seeking_description = form_body["seeking_description"]
+        venue.seeking_talent = form_body["seeking_talent"]
+        db.session.commit()
+    except:
+        db.session.rollback()
+        error = True
+    finally:
+        db.session.close()
+    if error:
+        abort(500)
     return redirect(url_for("show_venue", venue_id=venue_id))
 
 
